@@ -15,9 +15,9 @@ jobs:
       matrix:
         syncup:
           - from: 'master'
-            to: 'windows'
-          - from: 'master'
             to: 'master'
+          - from: '1.1'
+            to: '1.1'
     steps:
     - name: Checkout target repo
       uses: actions/checkout@v2
