@@ -12,10 +12,14 @@ jobs:
     runs-on: windows-2019
     timeout-minutes: 90
     steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache go
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             %LocalAppData%\go-build
@@ -23,14 +27,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: ${{ runner.os }}-go-
       - name: Cache ccache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ${{ github.workspace }}/.ccache
           key: ${{ runner.os }}-ccache-${{ hashFiles('internal/core/**') }}
           restore-keys: ${{ runner.os }}-ccache-
       - name: Configure Toolchain
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@v2.10.3
         with:
           msystem: mingw64
       - name: Install Deps
@@ -46,6 +50,11 @@ jobs:
           CCACHE_MAXSIZE: 2G
           CCACHE_DIR: ${{ github.workspace }}/.ccache
         run: |
+          # patches for 2.1
+          go mod edit -replace=github.com/tecbot/gorocksdb=github.com/soothing-rain/gorocksdb@v0.0.1
+          go mod download github.com/tecbot/gorocksdb
+          go mod tidy
+          # end patch
           mingw32-make
           sh scripts/package_windows.sh
       - name: release

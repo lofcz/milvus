@@ -16,7 +16,8 @@ jobs:
         syncup:
           - from: 'master'
             to: 'windows'
-
+          - from: 'master'
+            to: 'master'
     steps:
     - name: Checkout target repo
       uses: actions/checkout@v2
